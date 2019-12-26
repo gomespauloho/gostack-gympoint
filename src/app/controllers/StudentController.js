@@ -42,7 +42,29 @@ class StudentSession {
     });
   }
 
-  async update(req, res) {}
+  async update(req, res) {
+    const { body } = req;
+
+    if (!(await schemaUpdate.isValid(body))) {
+      return res.status(400).json({ error: 'Validation fails' });
+    }
+
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ error: 'Parameter id is required' });
+    }
+
+    const student = await Student.findByPk(id);
+
+    if (!student) {
+      return res.status(400).json({ error: 'Student not found' });
+    }
+
+    const { name, email, age, weight, height } = await student.update(body);
+
+    return res.json({ name, email, age, weight, height });
+  }
 }
 
 export default new StudentSession();
